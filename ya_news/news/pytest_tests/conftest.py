@@ -1,12 +1,18 @@
-# conftest.py
-import pytest
 from datetime import datetime, timedelta
+
+import pytest
 
 from django.conf import settings
 from django.test.client import Client
-from django.utils import timezone
+from django.urls import reverse
 
 from news.models import News, Comment
+
+
+@pytest.fixture
+def anonim():
+    client = Client()
+    return client
 
 
 @pytest.fixture
@@ -66,11 +72,43 @@ def page_data():
 
 @pytest.fixture
 def comment_data(news, author):
-    now = timezone.now()
     for index in range(10):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Tекст {index}',
         )
-        comment.created = now + timedelta(days=index)
-        comment.save()
     return comment
+
+
+@pytest.fixture
+def home_url():
+    return reverse('news:home')
+
+
+@pytest.fixture
+def detail_url(news):
+    return reverse('news:detail', args=(news.pk,))
+
+
+@pytest.fixture
+def delete_url(comment):
+    return reverse('news:delete', args=(comment.id,))
+
+
+@pytest.fixture
+def edit_url(comment):
+    return reverse('news:edit', args=(comment.id,))
+
+
+@pytest.fixture
+def login_url():
+    return reverse('users:login')
+
+
+@pytest.fixture
+def logout_url():
+    return reverse('users:logout')
+
+
+@pytest.fixture
+def signup_url():
+    return reverse('users:signup')
