@@ -138,4 +138,3 @@ class TestCommentEditDelete(TestCase):
         response = self.not_author_client.post(self.delete_url)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(Note.objects.count(), node_count_old)
-
