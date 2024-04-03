@@ -31,7 +31,7 @@ class TestRoutes(TestCase):
         self.reader_client.force_login(self.reader)
 
     def test_notes_list_for_author_user(self):
-        """Заметка появляется в списках заметок авторов"""
+        """Заметка появляется в списках заметок авторов."""
         response = self.author_client.get(self.list_url)
         object_list = response.context['object_list']
         self.assertEqual(object_list.count(), 1)
@@ -42,7 +42,7 @@ class TestRoutes(TestCase):
         self.assertEqual(note_from_object_list.author, self.note.author)
 
     def test_notes_list_for_reader_user(self):
-        """Заметка не появляется в списках заметок не автора"""
+        """Заметка не появляется в списках заметок не автора."""
         response = self.reader_client.get(self.list_url)
         object_list = response.context['object_list']
         self.assertEqual(object_list.count(), 0)

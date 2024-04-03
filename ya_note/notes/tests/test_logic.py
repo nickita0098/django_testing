@@ -29,7 +29,7 @@ class TestNoteCreation(TestCase):
         cls.soccses_url = reverse('notes:success')
 
     def test_user_can_create_note(self):
-        """Залогиненный пользователь может создать заметку"""
+        """Залогиненный пользователь может создать заметку."""
         Note.objects.all().delete()
         node_count_old = Note.objects.count()
         response = self.author_client.post(self.add_url, data=self.form_data)
@@ -54,7 +54,7 @@ class TestNoteCreation(TestCase):
     def test_empty_slug(self):
         """
         Если при создании заметки не заполнен slug,
-        то он формируется автоматически
+        то он формируется автоматически.
         """
         Note.objects.all().delete()
         node_count_old = Note.objects.count()
@@ -138,3 +138,4 @@ class TestCommentEditDelete(TestCase):
         response = self.not_author_client.post(self.delete_url)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(Note.objects.count(), node_count_old)
+
