@@ -20,25 +20,29 @@ class TestRoutes(TestCase):
         cls.note = Note.objects.create(title='Заголовок',
                                        text='Текст',
                                        author=cls.author,)
-        cls.login_url = reverse('users:login')
 
-        cls.urls_for_auth = (
-            reverse('notes:list'),
-            reverse('notes:add', args=None),
-            reverse('notes:success'),
-        )
+        cls.URL_NOTE_LIST = reverse('notes:list')
+        cls.URL_NOTE_ADD = reverse('notes:add', args=None)
+        cls.URL_NOTE_SUCCESS = reverse('notes:success')
+        cls.URL_NOTE_HOME = reverse('notes:home')
+        cls.URL_NOTE_LOGIN = reverse('users:login')
+        cls.URL_NOTE_EDIT = reverse('notes:edit', args=(cls.note.slug,))
+        cls.URL_NOTE_DELETE = reverse('notes:delete', args=(cls.note.slug,))
+        cls.URL_NOTE_DETAIL = reverse('notes:detail', args=(cls.note.slug,))
+        cls.URL_NOTE_LOGOUT = reverse('users:logout')
+        cls.URL_NOTE_SIGNUP = reverse('users:signup')
 
-        cls.urls_any = (
-            reverse('notes:home'),
-            cls.login_url,
-            reverse('users:logout'),
-            reverse('users:signup'),
-        )
-
-        cls.urls_for_author = (
-            reverse('notes:edit', args=(cls.note.slug,)),
-            reverse('notes:delete', args=(cls.note.slug,)),
-            reverse('notes:detail', args=(cls.note.slug,)),
+        cls.ALL_URLS = (
+            cls.URL_NOTE_LIST,
+            cls.URL_NOTE_ADD,
+            cls.URL_NOTE_SUCCESS,
+            cls.URL_NOTE_HOME,
+            cls.URL_NOTE_LOGIN,
+            cls.URL_NOTE_EDIT,
+            cls.URL_NOTE_DELETE,
+            cls.URL_NOTE_DETAIL,
+            cls.URL_NOTE_LOGOUT,
+            cls.URL_NOTE_SIGNUP,
         )
 
     def setUp(self):
@@ -47,39 +51,44 @@ class TestRoutes(TestCase):
         self.reader_client.force_login(self.reader)
 
     def test_availability_for_author(self):
-        """Все урлы доступны автору"""
-        for url in self.urls_for_author + self.urls_for_auth + self.urls_any:
+        """Все урлы доступны автору."""
+        for url in self.ALL_URLS:
             with self.subTest(url=url):
                 response = self.author_client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+                self.assertEqual(response.status_code,
+                                 HTTPStatus.OK)
 
     def test_availability_for_not_author(self):
         """
         Все урлы, кроме редактирования, удаления
-        и детали доступны не автору
+        и детали доступны не автору.
         """
-        for url in self.urls_for_author:
+        for url in self.ALL_URLS:
             with self.subTest(url=url):
                 response = self.reader_client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-
-        for url in self.urls_for_auth + self.urls_any:
-            with self.subTest(url=url):
-                response = self.reader_client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.OK)
+                if url in (self.URL_NOTE_EDIT,
+                           self.URL_NOTE_DELETE,
+                           self.URL_NOTE_DETAIL,):
+                    self.assertEqual(response.status_code,
+                                     HTTPStatus.NOT_FOUND)
+                else:
+                    self.assertEqual(response.status_code,
+                                     HTTPStatus.OK)
 
     def test_availability_for_not_anonim(self):
         """
         Все урлы кроме урлов аутонтефицированного пользователя
-        и автора доступны анониму
+        и автора доступны анониму.
         """
-        for url in self.urls_any:
+        for url in self.ALL_URLS:
             with self.subTest(url=url):
+                expected_url = f'{self.URL_NOTE_LOGIN}?next={url}'
                 response = self.client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.OK)
-
-        for url in self.urls_for_author + self.urls_for_auth:
-            with self.subTest(url=url):
-                expected_url = f'{self.login_url}?next={url}'
-                response = self.client.get(url)
-                self.assertRedirects(response, expected_url)
+                if url in (self.URL_NOTE_HOME,
+                           self.URL_NOTE_LOGIN,
+                           self.URL_NOTE_LOGOUT,
+                           self.URL_NOTE_SIGNUP,):
+                    self.assertEqual(response.status_code,
+                                     HTTPStatus.OK)
+                else:
+                    self.assertRedirects(response, expected_url)

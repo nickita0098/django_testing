@@ -74,13 +74,13 @@ def test_user_cant_delete_comment_of_another_user(not_author_client,
 def test_author_can_edit_comment(author_client, comment, edit_url, detail_url):
     """Авторизованный пользователь может редактировать свои комментарии."""
     comments_count_before = Comment.objects.count()
-    comment_text = 'комментарий'
-    response = author_client.post(edit_url, data={'text': comment_text})
+    data = {'text': 'комментарий'}
+    response = author_client.post(edit_url, data=data)
     assertRedirects(response, f'{detail_url}#comments')
-    edited_comment = Comment.objects.get(pk=comment.pk)
+    edited_comment = Comment.objects.get()
     comments_count = Comment.objects.count()
     assert comments_count == comments_count_before
-    assert edited_comment.text == comment_text
+    assert edited_comment.text == data.get('text')
     assert edited_comment.news == comment.news
     assert edited_comment.author == comment.author
     assert edited_comment.created == comment.created
@@ -94,7 +94,7 @@ def test_user_cant_edit_comment_of_another_user(not_author_client,
     comment_text = 'комментарий'
     response = not_author_client.post(edit_url, data={'text': comment_text})
     assert response.status_code == HTTPStatus.NOT_FOUND
-    edited_comment = Comment.objects.get(pk=comment.pk)
+    edited_comment = Comment.objects.get()
     comments_count = Comment.objects.count()
     assert comments_count == comments_count_before
     assert edited_comment.text == comment.text

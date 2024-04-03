@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 import pytest
-
 from django.conf import settings
 from django.test.client import Client
 from django.urls import reverse
@@ -73,10 +72,9 @@ def page_data():
 @pytest.fixture
 def comment_data(news, author):
     for index in range(10):
-        comment = Comment.objects.create(
+        Comment.objects.create(
             news=news, author=author, text=f'Tекст {index}',
         )
-    return comment
 
 
 @pytest.fixture
